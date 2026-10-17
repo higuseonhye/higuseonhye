@@ -1,55 +1,60 @@
-# Seonhye Gu | Clinical Systems & Physical AI Platform Architect
+# Seonhye Gu | Clinical Systems & Physical AI
 
-Bridging clinical data governance with low-latency AI serving, autonomous robotics control, and secure execution runtimes.
+Bridging clinical data governance with low-latency AI serving, closed-loop control, and a secure execution runtime.
+
+These repositories are synthetic benchmarks and local labs. They are not clinical devices. None of them reads a hospital record, a PACS, or a robot.
 
 ---
 
-### 🏛️ End-to-End Clinical & Physical AI Architecture
+### End-to-End Architecture
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
 │  [Top Layer: Agent Safety Runtime]                                     │
 │  • safemed-sandbox                                                     │
-│    - Ephemeral Micro-VM / Mock Gatekeeper (120 ms overhead)            │
-│    - Dry-run Interception (Unsafe Actuator/EMR Orders Blocked)         │
-│    - Zero-Fault Host Protection (0 bytes modified on host)             │
+│    - Ephemeral session / local mock gatekeeper (median overhead 120 ms)│
+│    - Dry-run interception (unsafe actuator and chart calls rejected)   │
+│    - Host protection (0 bytes of the repository modified)              │
 └───────────────────────────────────┬────────────────────────────────────┘
-                                    │ (Pre-flight Validation)
+                                    │  Pre-flight validation
 ┌───────────────────────────────────▼────────────────────────────────────┐
 │  [Middle Layer: Domain Use-Case Engines]                               │
-│  • vital-stream-triage   : 19-vital EMR streaming, Time-decay (0.723), │
-│                            False Alarms -57.6%, 1,000 beds P99 6.1 ms  │
-│  • dicom-stream-triage   : Zero-copy DICOM (69.7 fps, 24.9 ms),        │
-│                            False Positives -85.7%, Critical Wait -93.7%│
-│  • surgical-scene-triage : 100% Occlusion Rejection, CBF No-Go Zone    │
-│                            0% penetration, Async E-Hold P99 1.95 ms    │
+│  • vital-stream-triage                                                 │
+│      19-channel ward grid, time-decay MSE 0.723,                       │
+│      false alarms -57.6%, 1,000-bed micro-batch P99 6.1 ms             │
+│  • dicom-stream-triage                                                 │
+│      Threaded DICOM 69.7 fps, click path 24.9 ms,                      │
+│      false positives -85.7%, emergency wait -93.7%                     │
+│  • surgical-scene-triage                                               │
+│      Occlusion rejection 100% (120/120), no-go penetration 0/40,       │
+│      async hold P99 1.96 ms                                            │
 └───────────────────────────────────┬────────────────────────────────────┘
-                                    │ (High-Throughput Tensors & Policies)
+                                    │  Tensors, alarms, and policies
 ┌───────────────────────────────────▼────────────────────────────────────┐
-│  [Bottom Layer: Core Serving & Control Engines]                        │
-│  • triton-serving-lab / surgeval-bench                                 │
-│    - Zero-copy mmap ingestion (29,277 patches/s), P99 < 7 ms           │
-│  • diffusion-recovery-bench / embodied-adaptivity                      │
-│    - 100 Hz Flow Matching (4.3 ms), 6 cm Closed-loop Recovery (81%)    │
+│  [Bottom Layer: Serving, Evaluation, and Control]                      │
+│  • triton-serving-lab                                                  │
+│      Local ONNX queue. Concurrency-8 P99 47.59 ms -> 7.01 ms           │
+│  • surgeval-bench                                                      │
+│      Phase, tool, grounding, and safety VQA harness                    │
+│  • diffusion-recovery-bench                                            │
+│      4-step flow matching P99 4.3 ms (10 ms period),                   │
+│      6 cm closed-loop recovery 81%                                     │
+│  • embodied-adaptivity                                                 │
+│      Experiments on capability as the physical world changes           │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 📦 Key Repositories
+Each figure is the recorded CPU run in that repository. `triton-serving-lab` does not start NVIDIA Triton Server. The 4.3 ms figure is the action-head latency on `diffusion-recovery-bench`, not a camera-plus-robot loop.
 
-**Runtime**  
-[safemed-sandbox](https://github.com/higuseonhye/safemed-sandbox)
+### Repositories
 
-**Clinical Vital Streaming**  
-[vital-stream-triage](https://github.com/higuseonhye/vital-stream-triage)
-
-**Medical Imaging CADt**  
-[dicom-stream-triage](https://github.com/higuseonhye/dicom-stream-triage)
-
-**Surgical Scene Safety**  
-[surgical-scene-triage](https://github.com/higuseonhye/surgical-scene-triage)
-
-**Physical Policy Recovery**  
-[diffusion-recovery-bench](https://github.com/higuseonhye/diffusion-recovery-bench) · [embodied-adaptivity](https://github.com/higuseonhye/embodied-adaptivity)
-
-**High-Throughput Serving**  
-[triton-serving-lab](https://github.com/higuseonhye/triton-serving-lab) · [surgeval-bench](https://github.com/higuseonhye/surgeval-bench)
+| Layer | Repository | Recorded result |
+| --- | --- | --- |
+| Runtime | [safemed-sandbox](https://github.com/higuseonhye/safemed-sandbox) | Ephemeral session in front of the three triage gates. Median overhead 120 ms. Unsafe actuator and chart calls rejected. Host tree unchanged. |
+| Clinical stream | [vital-stream-triage](https://github.com/higuseonhye/vital-stream-triage) | Synthetic hourly ward grid. Time-decay standardized MSE 0.723. False alarms down 57.6%. 1,000-bed micro-batch P99 6.1 ms. |
+| Imaging | [dicom-stream-triage](https://github.com/higuseonhye/dicom-stream-triage) | Synthetic chest DICOM. Threaded decode 69.7 fps. Sequential click path 24.9 ms. False positives down 85.7%. Emergency wait down 93.7%. |
+| Surgical scene | [surgical-scene-triage](https://github.com/higuseonhye/surgical-scene-triage) | Smoke and splash rejection 100% (120/120). Barrier penetration 0/40. Async hold P99 1.96 ms. |
+| Policy recovery | [diffusion-recovery-bench](https://github.com/higuseonhye/diffusion-recovery-bench) | Four-step flow matching, action-head P99 4.3 ms inside a 10 ms period. Recovery after a 6 cm jump: 81%. |
+| Adaptivity | [embodied-adaptivity](https://github.com/higuseonhye/embodied-adaptivity) | Controlled experiments on keeping capability when the physical world changes. |
+| Serving | [triton-serving-lab](https://github.com/higuseonhye/triton-serving-lab) | Local dynamic-batch queue in front of a small ONNX model. Concurrency-8 P99 moved from 47.59 ms to 7.01 ms. |
+| Evaluation | [surgeval-bench](https://github.com/higuseonhye/surgeval-bench) | Harness for phase, tool, grounding, and safety questions. It scores predictions. It does not train a model or move a robot. |
