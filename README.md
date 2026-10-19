@@ -22,6 +22,9 @@ These repositories are synthetic benchmarks and local labs. They are not clinica
 │  • vital-stream-triage                                                 │
 │      19-channel ward grid, time-decay MSE 0.723,                       │
 │      false alarms -57.6%, 1,000-bed micro-batch P99 6.1 ms             │
+│  • retro-vital-sync                                                    │
+│      Late pre-dose chart. Decay-only RED 100/100.                      │
+│      Dose-gated RED 0/100, MSE vs replay 0.0006.                       │
 │  • dicom-stream-triage                                                 │
 │      Threaded DICOM 69.7 fps, click path 24.9 ms,                      │
 │      false positives -85.7%, emergency wait -93.7%                     │
@@ -55,6 +58,7 @@ Each figure is the recorded CPU run in that repository. `triton-serving-lab` doe
 | --- | --- | --- |
 | Runtime | [safemed-sandbox](https://github.com/higuseonhye/safemed-sandbox) | Ephemeral session in front of the three triage gates. Median overhead 120 ms. Unsafe actuator and chart calls rejected. Host tree unchanged. |
 | Clinical stream | [vital-stream-triage](https://github.com/higuseonhye/vital-stream-triage) | Synthetic hourly ward grid. Time-decay standardized MSE 0.723. False alarms down 57.6%. 1,000-bed micro-batch P99 6.1 ms. |
+| Delayed chart | [retro-vital-sync](https://github.com/higuseonhye/retro-vital-sync) | One Gaussian on five z-scores. A pre-dose chart arrives after norepinephrine. Decay-only RED 100/100. Dose-gated RED 0/100, MSE vs event-order replay 0.0006. A 10-minute lag issues at minute 62. |
 | Imaging | [dicom-stream-triage](https://github.com/higuseonhye/dicom-stream-triage) | Synthetic chest DICOM. Threaded decode 69.7 fps. Sequential click path 24.9 ms. False positives down 85.7%. Emergency wait down 93.7%. |
 | Surgical scene | [surgical-scene-triage](https://github.com/higuseonhye/surgical-scene-triage) | Smoke and splash rejection 100% (120/120). Barrier penetration 0/40. Async hold P99 1.96 ms. |
 | Moving sphere | [deformable-cbf-bench](https://github.com/higuseonhye/deformable-cbf-bench) | Prescribed sphere, point tool. Static hover clearance -0.250 mm. Time-varying hover +0.083 mm. On a 0.3 Hz bob both filters hold the margin, 8/8. |
@@ -62,6 +66,12 @@ Each figure is the recorded CPU run in that repository. `triton-serving-lab` doe
 | Adaptivity | [embodied-adaptivity](https://github.com/higuseonhye/embodied-adaptivity) | Controlled experiments on keeping capability when the physical world changes. |
 | Serving | [triton-serving-lab](https://github.com/higuseonhye/triton-serving-lab) | Local dynamic-batch queue in front of a small ONNX model. Concurrency-8 P99 moved from 47.59 ms to 7.01 ms. |
 | Evaluation | [surgeval-bench](https://github.com/higuseonhye/surgeval-bench) | Harness for phase, tool, grounding, and safety questions. It scores predictions. It does not train a model or move a robot. |
+
+### Two ward benches
+
+`vital-stream-triage` fills an hourly grid. Labs drawn once or twice a day are mostly missing, so the scored question is how to carry the last value forward in time, and whether a deterioration score above 0.7 should stay silent when the class distribution is flat. The recorded cuts are time-decay standardized MSE 0.723, 57.6% fewer false alarms, and a 1,000-bed micro-batch P99 of 6.1 ms.
+
+`retro-vital-sync` keeps a single five-dimensional Gaussian. The scored question is a chart whose measurement time is earlier than its log time, with a dose between them. Decay-only conditioning pages that recovery on 100 of 100 draws. Gating the cross-covariance by the dose pages it on 0 of 100, with MSE 0.0006 against an event-order replay. The alarm still waits for the chart: a 10-minute lag issues at minute 62, ten minutes after the on-time crossing. A 60-minute late chart measured after the dose still moves the current posterior, because the filter does not store the newer charts. Replaying those charts costs more as the stay grows (mean 96.6 ms at 480 charts, against 0.33 ms for the gated update).
 
 ### Two surgical benches
 
