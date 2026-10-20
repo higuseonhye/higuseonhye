@@ -31,6 +31,9 @@ These repositories are synthetic benchmarks and local labs. They are not clinica
 │  • surgical-scene-triage                                               │
 │      Occlusion rejection 100% (120/120), no-go penetration 0/40,       │
 │      async hold P99 1.96 ms                                            │
+│  • holoscan-multimodal-triage                                          │
+│      120 s ring. Saline false RED 0/100. Early AMBER 100/100.          │
+│      Beta-blocker relative SI +47.5%. Evaluate P99 0.224 ms.           │
 │  • deformable-cbf-bench                                                │
 │      Moving sphere. Static hover -0.250 mm.                            │
 │      Time-varying hover +0.083 mm. Crossing filters tie, 8/8.          │
@@ -61,11 +64,17 @@ Each figure is the recorded CPU run in that repository. `triton-serving-lab` doe
 | Delayed chart | [retro-vital-sync](https://github.com/higuseonhye/retro-vital-sync) | One Gaussian on five z-scores. A pre-dose chart arrives after norepinephrine. Decay-only RED 100/100. Dose-gated RED 0/100, MSE vs event-order replay 0.0006. A 10-minute lag issues at minute 62. |
 | Imaging | [dicom-stream-triage](https://github.com/higuseonhye/dicom-stream-triage) | Synthetic chest DICOM. Threaded decode 69.7 fps. Sequential click path 24.9 ms. False positives down 85.7%. Emergency wait down 93.7%. |
 | Surgical scene | [surgical-scene-triage](https://github.com/higuseonhye/surgical-scene-triage) | Smoke and splash rejection 100% (120/120). Barrier penetration 0/40. Async hold P99 1.96 ms. |
+| Operating-room stream | [holoscan-multimodal-triage](https://github.com/higuseonhye/holoscan-multimodal-triage) | 120 s vital ring with tool gating. Saline false RED 0/100. Early-bleed AMBER 100/100. Missed shock 0/100. Evaluate P99 0.224 ms on a 10 s buffer and 0.305 ms on a full ring. Beta-blocker hemorrhage at instantaneous SI 0.75 reaches relative SI +47.5% and stress 0.824. Light anesthesia stress 0.066. |
 | Moving sphere | [deformable-cbf-bench](https://github.com/higuseonhye/deformable-cbf-bench) | Prescribed sphere, point tool. Static hover clearance -0.250 mm. Time-varying hover +0.083 mm. On a 0.3 Hz bob both filters hold the margin, 8/8. |
 | Policy recovery | [diffusion-recovery-bench](https://github.com/higuseonhye/diffusion-recovery-bench) | Four-step flow matching, action-head P99 4.3 ms inside a 10 ms period. Recovery after a 6 cm jump: 81%. |
 | Adaptivity | [embodied-adaptivity](https://github.com/higuseonhye/embodied-adaptivity) | Controlled experiments on keeping capability when the physical world changes. |
 | Serving | [triton-serving-lab](https://github.com/higuseonhye/triton-serving-lab) | Local dynamic-batch queue in front of a small ONNX model. Concurrency-8 P99 moved from 47.59 ms to 7.01 ms. |
 | Evaluation | [surgeval-bench](https://github.com/higuseonhye/surgeval-bench) | Harness for phase, tool, grounding, and safety questions. It scores predictions. It does not train a model or move a robot. |
+
+
+### Operating-room stream
+
+`holoscan-multimodal-triage` keeps a 120 s, 100 Hz vital ring and a tool gate for irrigation and suction. On the recorded CPU run, saline false RED alarms are 0/100, early bleeds route to AMBER on 100/100, and unsafe GREEN dismissals are 0/100. Frame evaluation P99 is 0.224 ms with 10 s stored and 0.305 ms with the ring full. A beta-blocker pattern whose instantaneous shock index is 0.75, below a fixed cut of 0.8, reaches a relative change of +47.5% and stress 0.824. Light anesthesia, with pulse pressure rising, keeps stress at 0.066. The inputs are synthetic.
 
 ### Two ward benches
 
